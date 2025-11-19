@@ -31,7 +31,6 @@ public class GridBuildingSystem : MonoBehaviour
         cam = Camera.main;
         pickup = GetComponent<PlayerPickupSystem>();
     }
-
     void Update()
     {
         RefreshCurrentItem();
@@ -42,18 +41,26 @@ public class GridBuildingSystem : MonoBehaviour
             return;
         }
 
-        // ”правление поворотом предпросмотра (R нажать Ч повернуть)
         HandleRotationInput();
-
         UpdatePreviewPositionAndVisuals();
 
-        // Ћ ћ Ч попытатьс€ поставить
+        // Ћ ћ Ч попытка установки
         if (Input.GetMouseButtonDown(0))
             TryPlaceBuilding();
 
-        // ѕ ћ Ч отмена и возврат в исходную позицию
+        // ѕ ћ Ч отмена только если реально идЄт предпросмотр
         if (Input.GetMouseButtonDown(1))
-            CancelPlacement();
+        {
+            // не отмен€ем, если здание было только что подн€то этим же нажатием (чтобы избежать "подн€ть+вернуть")
+            float sincePickup = Time.time - pickup.lastBuildingPickupTime;
+            const float pickupIgnoreWindow = 0.12f; // окно в секундах, подбери по ощущению
+
+            if (previewObject != null && pickup.HasHeldBuilding() && sincePickup > pickupIgnoreWindow)
+            {
+                CancelPlacement();
+            }
+        }
+
     }
 
     void HandleRotationInput()

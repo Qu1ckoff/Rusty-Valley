@@ -11,6 +11,9 @@ public class PlayerPickupSystem : MonoBehaviour
     public Transform holdPoint;    // куда помещается объект визуально (для Ore или иконки)
     public Transform hiddenParent; // куда временно помещать picked Building (можно Player.transform)
 
+    [HideInInspector]
+    public float lastBuildingPickupTime = -10f; // время последнего подъёма здания
+
     private GameObject heldObject;
     private Camera cam;
 
@@ -38,26 +41,42 @@ public class PlayerPickupSystem : MonoBehaviour
 
     void HandlePickup()
     {
-        if (!Input.GetKeyDown(KeyCode.E))
-            return;
-
-        // Если уже что-то в руках — не поднимаем новое
-        if (heldObject)
-            return;
-
         Ray ray = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f));
+
         if (!Physics.Raycast(ray, out RaycastHit hit, interactDistance, interactMask))
             return;
 
         GameObject target = hit.collider.gameObject;
 
-        if (target.CompareTag("Building"))
+        // =======================
+        // Подбор Building (ПКМ)
+        // =======================
+        if (Input.GetMouseButtonDown(1)) // ПКМ
         {
-            PickUpBuilding(target);
+            // Если уже что-то держим — не берем новое
+            if (heldObject)
+                return;
+
+            if (target.CompareTag("Building"))
+            {
+                PickUpBuilding(target);
+                return;
+            }
         }
-        else if (target.CompareTag("Ore"))
+
+        // =======================
+        // Подбор Ore (E)
+        // =======================
+        if (Input.GetKeyDown(KeyCode.E))
         {
-            PickUpOre(target);
+            if (heldObject)
+                return;
+
+            if (target.CompareTag("Ore"))
+            {
+                PickUpOre(target);
+                return;
+            }
         }
     }
 
@@ -104,6 +123,10 @@ public class PlayerPickupSystem : MonoBehaviour
             r.enabled = false;
         foreach (var c in originalColliders)
             c.enabled = false;
+
+        lastBuildingPickupTime = Time.time;
+
+        Debug.Log("[Pickup] Building picked up: " + obj.name);
 
         // Перемещаем под hiddenParent, но сохраняем мировой масштаб
         obj.transform.SetParent(hiddenParent, true); // worldPositionStays = true
