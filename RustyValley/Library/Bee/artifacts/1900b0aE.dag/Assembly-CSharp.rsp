@@ -358,6 +358,7 @@
 -analyzer:"C:/Program Files/Unity/Hub/Editor/2022.3.62f2/Editor/Data/Tools/Unity.SourceGenerators/Unity.SourceGenerators.dll"
 "Assets/Scripts/BuildingItem.cs"
 "Assets/Scripts/GridBuildingSystem.cs"
+"Assets/Scripts/InteractionHintSystem.cs"
 "Assets/Scripts/PlayerCameraLook.cs"
 "Assets/Scripts/PlayerMovement.cs"
 "Assets/Scripts/PlayerPickupSystem.cs"
